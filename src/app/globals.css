@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+  /* --brand-dark: #1b5e20; */
+
+
+/* Design tokens. Only --brand (#2E7D32) is verified from the original site; the rest is the
+   shared look of this store and can be tuned here. */
+:root {
+  --brand:#F97316;
+  --brand-dark: #b66929;
+  --brand-soft: #e8f5e9;
+  --ink: #14221a;
+  --muted: #5b6b60;
+  --line: #e3ebe4;
+  --surface: #f5faf5;
+  --danger: #b3261e;
+  --radius-card: 18px;
+  --radius-btn: 12px;
+  --page-width: 1180px;
+  --shadow-soft: 0 1px 2px rgba(20, 34, 26, 0.05), 0 8px 24px rgba(20, 34, 26, 0.06);
+  --shadow-lift: 0 14px 34px rgba(27, 94, 32, 0.18);
+}
+html { scroll-behavior: smooth; }
+body { color: var(--ink); background: #fff; font-family: var(--font-body), system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; line-height: 1.6; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+::selection { background: var(--brand-soft); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+@layer components {
+  .container-page { @apply mx-auto w-full max-w-page px-4 sm:px-6; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-btn px-5 py-3 font-semibold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60; }
+  .btn-primary { @apply btn text-white shadow-sm hover:-translate-y-0.5; background-image: linear-gradient(135deg, var(--brand), var(--brand-dark)); }
+  .btn-primary:hover { box-shadow: var(--shadow-lift); }
+  .btn-outline { @apply btn border border-gray-300 bg-white text-brand hover:bg-brand-soft; }
+  .input { @apply w-full rounded-btn border border-line bg-white px-3.5 py-2.5 text-ink transition placeholder:text-gray-400 focus:border-brand; }
+  .input:focus { box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15); outline: none; }
+  .label { @apply mb-1 block text-sm font-medium; }
+  .card { @apply rounded-card border border-line bg-white; box-shadow: var(--shadow-soft); }
+  .card-hover { @apply transition duration-200 hover:-translate-y-1; }
+  .card-hover:hover { box-shadow: var(--shadow-lift); }
+  .section { @apply py-10 sm:py-16; }
+  .section-title { @apply text-2xl font-bold tracking-tight sm:text-3xl; }
+  .section-title::after { content: ""; display: block; width: 44px; height: 4px; margin-top: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--brand), #8bc34a); }
+  .text-center .section-title::after { margin-inline: auto; }
+  .pill { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold; }
+}

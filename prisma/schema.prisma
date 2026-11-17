@@ -1,0 +1,299 @@
+// SUKUN Mart — SQLite via Prisma. SQLite has no native enums/JSON here, so
+// enum-like columns are Strings validated in src/lib/constants.js, and JSON
+// payloads are stored as JSON text.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique // sha256 of the cookie token; raw token is never stored
+  adminId   String
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([expiresAt])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  image       String?
+  sortOrder   Int       @default(0)
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([published, sortOrder])
+}
+
+model Product {
+  id               String         @id @default(cuid())
+  slug             String         @unique // top-level URL, e.g. /barakah (matches the original)
+  name             String
+  modelCode        String?
+  tagline          String?
+  shortDescription String?
+  description      String?
+  badge            String?
+  price            Int // BDT, whole taka
+  compareAtPrice   Int? // "আগের মূল্য"; null = none shown on the original
+  priceNote        String? // e.g. "প্রথম ২০ জনের অফার"
+  deliveryCharge   Int? // null = confirmed with customer after ordering
+  deliveryNote     String?
+  advanceRequired  Boolean        @default(false)
+  advanceAmount    Int?
+  stockMode        String         @default("UNLIMITED") // UNLIMITED | TRACKED | PREORDER | OUT_OF_STOCK
+  stockQty         Int?
+  minQty           Int            @default(1)
+  maxQty           Int            @default(10)
+  orderInstructions String?
+  importantNotes   String? // e.g. "no warranty" notice, shown on product page
+  featuredImage    String?
+  published        Boolean        @default(false)
+  sortOrder        Int            @default(0) // position in "All products", lists, search (lower = first)
+  isTrending       Boolean        @default(false)
+  trendingOrder    Int            @default(0) // position inside Trending Products (lower = first)
+  seoTitle         String?
+  seoDescription   String?
+  categoryId       String?
+  category         Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  images           ProductImage[]
+  variants         ProductVariant[]
+  specs            ProductSpec[]
+  benefits         ProductBenefit[]
+  orderFields      OrderFormField[]
+  faqs             FAQ[]
+  reviews          Review[]
+  orderItems       OrderItem[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([categoryId, published, sortOrder])
+  @@index([published])
+  @@index([isTrending, trendingOrder])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  path      String
+  alt       String?
+  sortOrder Int     @default(0)
+
+  @@index([productId, sortOrder])
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type       String // color | size
+  label      String
+  priceDelta Int      @default(0)
+  stockQty   Int? // null = not tracked per variant
+  available  Boolean  @default(true)
+  imagePath  String? // optional gallery image to show when this variant is picked
+  sortOrder  Int      @default(0)
+
+  @@unique([productId, type, label])
+  @@index([productId, type, sortOrder])
+}
+
+model ProductSpec {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label     String
+  value     String
+  sortOrder Int     @default(0)
+
+  @@index([productId, sortOrder])
+}
+
+model ProductBenefit {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  title     String
+  text      String?
+  sortOrder Int     @default(0)
+
+  @@index([productId, sortOrder])
+}
+
+// Per-product order form. `key` is stored in Order.fieldValues; the keys
+// customerName / customerPhone / customerAddress / district / area / notes
+// are also copied to dedicated Order columns for searching.
+model OrderFormField {
+  id          String  @id @default(cuid())
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  key         String
+  label       String
+  type        String  @default("text") // text | textarea | tel | number | select | variant_color | variant_size | checkbox
+  required    Boolean @default(false)
+  enabled     Boolean @default(true)
+  options     String? // JSON array of strings for select
+  placeholder String?
+  helpText    String?
+  sortOrder   Int     @default(0)
+
+  @@unique([productId, key])
+  @@index([productId, sortOrder])
+}
+
+model FAQ {
+  id        String    @id @default(cuid())
+  question  String
+  answer    String
+  isGlobal  Boolean   @default(false) // shown on the homepage
+  published Boolean   @default(true)
+  sortOrder Int       @default(0)
+  products  Product[] // many-to-many: which product pages show it
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([published, sortOrder])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  group     String? // e.g. "zikr-ring" / "clip-fan" for homepage review blocks
+  name      String
+  source    String? // e.g. "Facebook Review", "Verified Customer"
+  rating    Int? // null = no rating shown
+  body      String?
+  imagePath String? // screenshot
+  status    String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, productId])
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  idempotencyKey  String   @unique
+  status          String   @default("PENDING") // PENDING | CONFIRMED | PROCESSING | SHIPPED | DELIVERED | CANCELLED
+  customerName    String
+  customerPhone   String
+  customerAddress String?
+  district        String?
+  area            String?
+  customerNote    String?
+  fieldValues     String // JSON snapshot of every submitted answer incl. labels
+  subtotal        Int
+  deliveryCharge  Int? // null = to be confirmed
+  total           Int
+  paymentMethod   String   @default("COD")
+  paymentStatus   String   @default("UNPAID") // UNPAID | PARTIAL | PAID | REFUNDED
+  advanceAmount   Int      @default(0)
+  remainingAmount Int      @default(0)
+  transactionId   String?
+  paymentReference String?
+  paymentScreenshot String?
+  adminNote       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  items           OrderItem[]
+  history         OrderStatusHistory[]
+
+  @@index([status, createdAt])
+  @@index([customerPhone])
+  @@index([customerName])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+// Snapshot: name/variant/price are copied at order time and never change.
+model OrderItem {
+  id             String   @id @default(cuid())
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String?
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName    String
+  productSlug    String
+  variantSummary String?
+  unitPrice      Int
+  quantity       Int
+  lineTotal      Int
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model OrderStatusHistory {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus String?
+  toStatus   String
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([orderId, createdAt])
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  placement String   @default("HOME_HERO") // HOME_HERO | HOME_PROMO | CATEGORY
+  title     String?
+  subtitle  String?
+  image     String?
+  ctaLabel  String?
+  ctaHref   String?
+  published Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([placement, published, sortOrder])
+}
+
+// Ordered, toggleable homepage blocks. `config` is JSON text.
+model HomeSection {
+  id        String   @id @default(cuid())
+  type      String // hero | trust | products | featured_product | how_it_works | reviews | faq | cta
+  title     String?
+  subtitle  String?
+  body      String?
+  config    String?
+  visible   Boolean  @default(true)
+  sortOrder Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([visible, sortOrder])
+}
