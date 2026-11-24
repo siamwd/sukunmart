@@ -18,7 +18,11 @@ export default async function Orders({ searchParams }) {
   const where = {
     ...(status && { status }), ...(pay && { paymentStatus: pay }),
     ...((from || to) && { createdAt: { ...(from && { gte: from }), ...(to && { lte: to }) } }),
-    ...(q && { OR: [{ orderNumber: { contains: q } }, { customerName: { contains: q } }, { customerPhone: { contains: q } }] }),
+    ...(q && { OR: [
+      { orderNumber: { contains: q, mode: "insensitive" } },
+      { customerName: { contains: q, mode: "insensitive" } },
+      { customerPhone: { contains: q, mode: "insensitive" } },
+    ] }),
   };
   const [total, orders] = await Promise.all([
     prisma.order.count({ where }),

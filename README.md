@@ -1,6 +1,6 @@
 # SUKUN — Next.js electronics store (started from the sukunmart.com clone)
 
-Single Next.js (App Router, **JavaScript**) project: React, Tailwind CSS, Lucide, Prisma + **SQLite**. No cart, wishlist or customer accounts — customers order directly from each product page. Private admin at `/admin-dashboard/`.
+Single Next.js (App Router, **JavaScript**) project: React, Tailwind CSS, Lucide, Prisma + **PostgreSQL (Neon)**. No cart, wishlist or customer accounts — customers order directly from each product page. Private admin at `/admin-dashboard/`.
 
 > **Status: written but never executed.** The authoring environment had no network, so `npm install`, `prisma migrate`, `npm run build`, lint and tests have **not** been run. Files were only syntax-parsed. Expect to fix small issues on first run, and treat nothing here as "tested".
 
@@ -10,12 +10,12 @@ Node.js 20+ (22 recommended) and npm.
 ## Setup
 ```bash
 npm install
-cp .env.example .env          # edit values
-npx prisma migrate dev --name init   # creates prisma/migrations + dev.db
+npx prisma migrate dev --name init   # creates prisma/migrations and the Neon schema
 npm run db:seed               # electronics categories + home sections + settings (no products)
 npm run admin:create          # uses ADMIN_EMAIL / ADMIN_PASSWORD from .env (min 12 chars)
 npm run dev                   # http://localhost:3000, admin at /admin-login
 ```
+Create `.env` from `.env.example` and set `DATABASE_URL` to Neon's pooled connection string and `DIRECT_URL` to its direct connection string. Use the pooled URL for application requests; Prisma uses the direct URL for migrations. Keep `.env` private.
 After creating the admin, remove `ADMIN_PASSWORD` from `.env`. Re-running `admin:create` for the same email resets the password and signs out its sessions.
 
 ## Commands
@@ -24,7 +24,8 @@ After creating the admin, remove `ADMIN_PASSWORD` from `.env`. Re-running `admin
 ## Environment
 | Var | Purpose |
 |---|---|
-| DATABASE_URL | `file:./dev.db` (relative to `prisma/`) |
+| DATABASE_URL | Neon pooled PostgreSQL connection string used by the app |
+| DIRECT_URL | Neon direct PostgreSQL connection string used by Prisma migrations |
 | ADMIN_EMAIL / ADMIN_PASSWORD | only for `admin:create` |
 | NEXT_PUBLIC_SITE_URL | canonical URLs, sitemap, OG |
 | ADMIN_SESSION_HOURS | session lifetime (default 8) |
@@ -36,10 +37,10 @@ After creating the admin, remove `ADMIN_PASSWORD` from `.env`. Re-running `admin
 - **Security:** bcrypt (cost 12) hashes; random session token in an HTTP-only, SameSite=Lax cookie (Secure in production), only its SHA-256 stored; every admin page and Server Action calls `requireAdmin()`; Server Actions use Next's built-in Origin check; login rate limit (per IP and per email); order rate limit; uploads validated by magic bytes, size-capped (3 MB), server-generated filenames; React escapes output; confirmation page hides address/notes/IDs.
 
 ## Image uploads & backups
-Uploads go to `public/uploads/<folder>/`; only paths are stored in SQLite. Back up **both** `prisma/*.db` and `public/uploads/`. Local-disk uploads and SQLite need a persistent disk: they will not survive on serverless/ephemeral hosts (use a VPS or a host with a persistent volume, or move uploads to object storage). Uploads are done through Server Actions, not an `/api/uploads` route.
+Uploads go to `public/uploads/<folder>/`; only paths are stored in PostgreSQL. Back up the Neon database and `public/uploads/`. Local-disk uploads need a persistent disk: they will not survive on serverless/ephemeral hosts (use a VPS or a host with a persistent volume, or move uploads to object storage). Uploads are done through Server Actions, not an `/api/uploads` route.
 
 ## Deployment notes
-Run `npm run build`, `npm run db:deploy`, `npm run start` behind HTTPS. Rate limiting is in-memory (single process). Run one instance, or swap `src/lib/rate-limit.js` for a shared store.
+Run `npm run build`, `npm run db:deploy`, `npm run start` behind HTTPS. Ensure both Neon connection strings are configured for build/migration commands. Rate limiting is in-memory (single process). Run one instance, or swap `src/lib/rate-limit.js` for a shared store.
 
 ## Folder structure
 `src/app/(store)` public routes · `src/app/admin-login` · `src/app/admin-dashboard` · `src/app/actions` Server Actions · `src/components` · `src/lib` (prisma, auth, order, validation, uploads, settings) · `prisma/` schema + seed · `scripts/create-admin.js` · `docs/`.

@@ -28,7 +28,7 @@
 - [x] Hero background image editable from admin; hero reads first published HOME_HERO banner
 - [x] `categories` home section above products; categories dropdown in navbar/footer
 - [x] Navbar search (center) + /search page + /api/search (rate-limited, public fields only)
-- Note: search uses SQLite `contains` (case-insensitive for English letters only).
+- Search uses Prisma `contains` with case-insensitive matching on PostgreSQL.
 
 ## Stage 6 — Hero redesign, Trending, ordering, design polish (DONE, UNTESTED)
 - [x] Split hero + auto-rotating multi-image card (HeroSlider), admin multi-image manager (HOME_HERO banners)
@@ -53,6 +53,6 @@
 ## Known issues / limitations
 - Nothing has been executed (see above). Possible issues to watch: Prisma client accessor for model FAQ is `prisma.fAQ`; `has-[:checked]` needs Tailwind >= 3.4; `next/image` for admin-uploaded files needs the dev server/`next start` (not static export).
 - Migrations not generated; images not shipped; original order form/legal pages/most product pages not inspectable (docs/WEBSITE_RESEARCH.md).
-- In-memory rate limiting; local-disk uploads; SQLite single-writer.
+- In-memory rate limiting; local-disk uploads.
 - No `/api/uploads` route handler (uploads use Server Actions).
 - Quality-gate items for build, tests, mobile verification are NOT satisfied yet.

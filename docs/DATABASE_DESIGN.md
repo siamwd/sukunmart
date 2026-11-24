@@ -1,6 +1,6 @@
-# Database design (SQLite + Prisma)
+# Database design (PostgreSQL + Prisma)
 
-Schema: `prisma/schema.prisma`. SQLite lacks native enums/JSON in this setup, so enum-like columns are strings validated in `src/lib/constants.js`; JSON blobs are stored as text.
+Schema: `prisma/schema.prisma`. Enum-like columns are strings validated in `src/lib/constants.js`; JSON blobs are stored as text. The application uses Neon's pooled `DATABASE_URL`; Prisma migrations use `DIRECT_URL`.
 
 | Model | Purpose |
 |---|---|
@@ -22,4 +22,4 @@ Server loads the product and its form, validates every answer against the field 
 Orders: (status, createdAt), phone, name, paymentStatus, createdAt. Products: (categoryId, published, sortOrder). Reviews: (status, productId).
 
 ## Migrations
-Not generated yet because the authoring sandbox cannot run Prisma. Run `npx prisma migrate dev --name init` once; commit `prisma/migrations/`.
+Not generated yet because the authoring sandbox cannot run Prisma. Configure both Neon URLs, then run `npx prisma migrate dev --name init` once; commit `prisma/migrations/`.

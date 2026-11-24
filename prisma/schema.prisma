@@ -1,14 +1,14 @@
-// SUKUN Mart — SQLite via Prisma. SQLite has no native enums/JSON here, so
-// enum-like columns are Strings validated in src/lib/constants.js, and JSON
-// payloads are stored as JSON text.
+// SUKUN Mart — PostgreSQL via Prisma. Enum-like columns are Strings validated
+// in src/lib/constants.js, and JSON payloads are stored as JSON text.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Admin {

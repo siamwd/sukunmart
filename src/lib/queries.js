@@ -16,8 +16,9 @@ export function searchWhere(q) {
   return {
     published: true,
     AND: terms.map((t) => ({ OR: [
-      { name: { contains: t } }, { tagline: { contains: t } }, { shortDescription: { contains: t } },
-      { description: { contains: t } }, { modelCode: { contains: t } }, { category: { name: { contains: t } } },
+      { name: { contains: t, mode: "insensitive" } }, { tagline: { contains: t, mode: "insensitive" } },
+      { shortDescription: { contains: t, mode: "insensitive" } }, { description: { contains: t, mode: "insensitive" } },
+      { modelCode: { contains: t, mode: "insensitive" } }, { category: { name: { contains: t, mode: "insensitive" } } },
     ] })),
   };
 }
