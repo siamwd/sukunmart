@@ -11,7 +11,7 @@ export default async function Settings({ searchParams }) {
       <PageHeader title="Website settings" /><Notice searchParams={await searchParams} />
       <form action={saveSiteSettings} className="card grid max-w-3xl gap-4 p-5 sm:grid-cols-2">
         <Field label="Website name" name="siteName" defaultValue={s.siteName} /><Field label="Tagline" name="tagline" defaultValue={s.tagline} />
-        <Field label="Logo" name="logo" type="file" accept="image/jpeg,image/png,image/webp" hint={s.logo ? `Current: ${s.logo}` : "No logo uploaded; the site name is shown."} /><Field label="Announcement bar (empty = hidden)" name="announcement" defaultValue={s.announcement} />
+        <Field label="Logo" name="logo" type="file" accept="image/jpeg,image/png,image/webp" hint={s.logo ? `Used as the site logo and favicon. Current: ${s.logo}` : "No logo uploaded; the site name is shown. Uploaded logos are also used as the favicon."} /><Field label="Announcement bar (empty = hidden)" name="announcement" defaultValue={s.announcement} />
         <Field label="Contact number" name="contactPhone" defaultValue={s.contactPhone} /><Field label="Email" name="contactEmail" type="email" defaultValue={s.contactEmail} />
         <div className="sm:col-span-2"><Field label="Address" name="address" defaultValue={s.address} /></div>
         <Field label="Facebook URL" name="facebookUrl" defaultValue={s.facebookUrl} /><Field label="WhatsApp URL" name="whatsappUrl" defaultValue={s.whatsappUrl} /><Field label="Messenger URL" name="messengerUrl" defaultValue={s.messengerUrl} />
