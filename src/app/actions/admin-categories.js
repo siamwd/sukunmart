@@ -28,14 +28,19 @@ export async function saveCategory(id, formData) {
   if (await slugTaken(slug, id)) redirect(flash(back, "err", "That slug is reserved or already used by a product/category."));
   const data = { name, slug, description: optStr(formData.get("description"), 1000), sortOrder: int(formData.get("sortOrder") || 0, { min: 0, max: 9999 }) ?? 0, published: bool(formData.get("published")) };
   const file = formData.get("image");
+  let oldImage;
   try {
     if (file && typeof file !== "string" && file.size > 0) {
+      if (id) {
+        const category = await prisma.category.findUnique({ where: { id }, select: { image: true } });
+        oldImage = category?.image;
+      }
       const path = await saveImage(file, "categories");
-      if (id) { const old = await prisma.category.findUnique({ where: { id }, select: { image: true } }); await deleteImage(old?.image); }
       data.image = path;
     }
   } catch (e) { redirect(flash(back, "err", e.message)); }
   if (id) await prisma.category.update({ where: { id }, data }); else await prisma.category.create({ data });
+  if (oldImage) await deleteImage(oldImage);
   revalidatePath("/", "layout");
   redirect(flash(LIST, "ok", "Category saved."));
 }

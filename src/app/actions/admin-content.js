@@ -34,8 +34,16 @@ export async function saveReview(id, fd) {
   if (!name || !REVIEW_STATUSES.includes(status) || (fd.get("rating") && rating === null)) back("/admin-dashboard/reviews", null, "Name, status and a rating of 1–5 (or empty) are required.");
   const productId = optStr(fd.get("productId"), 40);
   const data = { name, status, rating, productId, group: optStr(fd.get("group"), 60), source: optStr(fd.get("source"), 100), body: optStr(fd.get("body"), 2000), sortOrder: order(fd.get("sortOrder")) };
-  try { const f = file(fd, "image"); if (f) data.imagePath = await saveImage(f, "reviews"); } catch (e) { back("/admin-dashboard/reviews", null, e.message); }
+  let oldImage;
+  try {
+    const f = file(fd, "image");
+    if (f) {
+      if (id) oldImage = (await prisma.review.findUnique({ where: { id }, select: { imagePath: true } }))?.imagePath;
+      data.imagePath = await saveImage(f, "reviews");
+    }
+  } catch (e) { back("/admin-dashboard/reviews", null, e.message); }
   if (id) await prisma.review.update({ where: { id }, data }); else await prisma.review.create({ data });
+  if (oldImage) await deleteImage(oldImage);
   back("/admin-dashboard/reviews", "Review saved.");
 }
 export async function setReviewStatus(id, status) { await requireAdmin(); if (!REVIEW_STATUSES.includes(status)) return; await prisma.review.update({ where: { id }, data: { status } }); back("/admin-dashboard/reviews", `Review ${status.toLowerCase()}.`); }
@@ -61,8 +69,16 @@ export async function saveBanner(id, fd) {
   const href = optStr(fd.get("ctaHref"), 300);
   if (href && !/^(\/|https:\/\/)/.test(href)) back("/admin-dashboard/homepage", null, "Link must start with / or https://");
   const data = { placement, title: optStr(fd.get("title"), 200), subtitle: optStr(fd.get("subtitle"), 300), ctaLabel: optStr(fd.get("ctaLabel"), 60), ctaHref: href, published: bool(fd.get("published")), sortOrder: order(fd.get("sortOrder")) };
-  try { const f = file(fd, "image"); if (f) data.image = await saveImage(f, "banners"); } catch (e) { back("/admin-dashboard/homepage", null, e.message); }
+  let oldImage;
+  try {
+    const f = file(fd, "image");
+    if (f) {
+      if (id) oldImage = (await prisma.banner.findUnique({ where: { id }, select: { image: true } }))?.image;
+      data.image = await saveImage(f, "banners");
+    }
+  } catch (e) { back("/admin-dashboard/homepage", null, e.message); }
   if (id) await prisma.banner.update({ where: { id }, data }); else await prisma.banner.create({ data });
+  if (oldImage) await deleteImage(oldImage);
   back("/admin-dashboard/homepage", "Banner saved.");
 }
 export async function deleteBanner(id) { await requireAdmin(); const b = await prisma.banner.delete({ where: { id } }); await deleteImage(b.image); back("/admin-dashboard/homepage", "Banner deleted."); }
@@ -73,8 +89,16 @@ export async function saveSiteSettings(fd) {
   const values = {};
   for (const k of Object.keys(SETTING_DEFAULTS)) if (k !== "logo" && fd.has(k)) values[k] = str(fd.get(k), k.endsWith("Content") ? 30000 : 500);
   for (const k of ["facebookUrl", "whatsappUrl", "messengerUrl"]) if (values[k] && !/^https:\/\//.test(values[k])) back("/admin-dashboard/settings", null, `${k} must start with https://`);
-  try { const f = file(fd, "logo"); if (f) values.logo = await saveImage(f, "site"); } catch (e) { back("/admin-dashboard/settings", null, e.message); }
+  let oldLogo;
+  try {
+    const f = file(fd, "logo");
+    if (f) {
+      oldLogo = (await prisma.siteSetting.findUnique({ where: { key: "logo" }, select: { value: true } }))?.value;
+      values.logo = await saveImage(f, "site");
+    }
+  } catch (e) { back("/admin-dashboard/settings", null, e.message); }
   await saveSettings(values);
+  if (oldLogo) await deleteImage(oldLogo);
   back("/admin-dashboard/settings", "Settings saved.");
 }
 

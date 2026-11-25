@@ -56,7 +56,7 @@ function ProductPage({ product }) {
     ...product.images.filter((i) => i.path !== product.featuredImage)];
   const ld = {
     "@context": "https://schema.org", "@type": "Product", name: product.name, description: product.shortDescription || product.tagline || undefined,
-    image: images.map((i) => siteUrl() + i.path),
+    image: images.map((i) => /^https?:\/\//.test(i.path) ? i.path : siteUrl() + i.path),
     offers: { "@type": "Offer", priceCurrency: "BDT", price: product.price, url: `${siteUrl()}/${product.slug}`,
       availability: product.stockMode === "OUT_OF_STOCK" ? "https://schema.org/OutOfStock" : product.stockMode === "PREORDER" ? "https://schema.org/PreOrder" : "https://schema.org/InStock" },
   };

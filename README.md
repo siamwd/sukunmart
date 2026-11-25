@@ -37,7 +37,7 @@ After creating the admin, remove `ADMIN_PASSWORD` from `.env`. Re-running `admin
 - **Security:** bcrypt (cost 12) hashes; random session token in an HTTP-only, SameSite=Lax cookie (Secure in production), only its SHA-256 stored; every admin page and Server Action calls `requireAdmin()`; Server Actions use Next's built-in Origin check; login rate limit (per IP and per email); order rate limit; uploads validated by magic bytes, size-capped (3 MB), server-generated filenames; React escapes output; confirmation page hides address/notes/IDs.
 
 ## Image uploads & backups
-Uploads go to `public/uploads/<folder>/`; only paths are stored in PostgreSQL. Back up the Neon database and `public/uploads/`. Local-disk uploads need a persistent disk: they will not survive on serverless/ephemeral hosts (use a VPS or a host with a persistent volume, or move uploads to object storage). Uploads are done through Server Actions, not an `/api/uploads` route.
+Product, category, banner, review and site-logo images are uploaded to Vercel Blob; the returned public URLs are stored in PostgreSQL. Configure the project's `BLOB_READ_WRITE_TOKEN` (automatically available when Vercel Blob is connected). Back up the Neon database and retain the Vercel Blob store. Uploads are validated by file signature and limited to 3 MB. Uploads are done through authenticated Server Actions, not an `/api/uploads` route.
 
 ## Deployment notes
 Run `npm run build`, `npm run db:deploy`, `npm run start` behind HTTPS. Ensure both Neon connection strings are configured for build/migration commands. Rate limiting is in-memory (single process). Run one instance, or swap `src/lib/rate-limit.js` for a shared store.
