@@ -20,7 +20,7 @@ export default function OrderForm({ product, fields, variants }) {
 
   return (
     <form action={action} className="card space-y-4 p-5" aria-labelledby="order-heading" noValidate>
-      <h2 id="order-heading" className="text-xl font-bold">{product.stockMode === "PREORDER" ? "প্রি-অর্ডার করুন" : "অর্ডার করুন"}</h2>
+      <h2 id="order-heading" className="text-xl font-bold">{product.stockMode === "PREORDER" ? "প্রি-অর্ডার করুন" : "দেখুন ও অর্ডার করুন"}</h2>
       {product.orderInstructions && <p className="rounded-btn bg-brand-soft p-3 text-sm">{product.orderInstructions}</p>}
       <input type="hidden" name="slug" value={product.slug} />
       <input type="hidden" name="idempotencyKey" value={key} />
