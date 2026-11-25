@@ -11,6 +11,7 @@ export async function generateMetadata() {
     metadataBase: new URL(siteUrl()),
     title: { default: s.seoTitle || s.siteName, template: `%s | ${s.siteName}` },
     description: s.seoDescription || undefined,
+    icons: s.logo ? { icon: s.logo, shortcut: s.logo, apple: s.logo } : undefined,
     openGraph: { siteName: s.siteName, locale: "bn_BD", type: "website" },
   };
 }
