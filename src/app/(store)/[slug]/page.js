@@ -63,8 +63,11 @@ function ProductPage({ product }) {
   return (
     <div className="container-page section">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
-      <div className="grid gap-8 md:grid-cols-2">
-        <ProductGallery images={images} name={product.name} />
+      <div className="grid items-start gap-8 md:grid-cols-2">
+        <div>
+          <ProductGallery images={images} name={product.name} />
+          {product.description && <section className="mt-6"><h2 className="section-title mb-5">বিবরণ</h2><p className="max-w-3xl whitespace-pre-line">{product.description}</p></section>}
+        </div>
         <div>
           {product.badge && <p className="mb-2 inline-block rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">{product.badge}</p>}
           <h1 className="text-3xl font-bold">{product.name}</h1>
@@ -83,7 +86,6 @@ function ProductPage({ product }) {
         </div>
       </div>
 
-      {product.description && <section className="mt-12"><h2 className="section-title mb-5">বিবরণ</h2><p className="max-w-3xl whitespace-pre-line">{product.description}</p></section>}
       {product.benefits.length > 0 && (
         <section className="mt-12"><h2 className="section-title mb-5">সুবিধাসমূহ</h2>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{product.benefits.map((b) => (
