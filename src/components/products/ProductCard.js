@@ -32,7 +32,7 @@ export default function ProductCard({ product, trending = false, rank }) {
         </p>
         {product.priceNote && <p className="text-xs text-muted">{product.priceNote}</p>}
         <p className={`text-xs font-medium ${soldOut ? "text-danger" : "text-brand"}`}>{STOCK_MODE_LABELS[product.stockMode]}</p>
-        <Link href={`/${product.slug}`} className="btn-primary mt-2 py-2.5 text-sm">{product.stockMode === "PREORDER" ? "প্রি-অর্ডার করুন" : "অর্ডার করুন"}</Link>
+        <Link href={`/${product.slug}`} className="btn-primary mt-2 py-2.5 text-sm">{product.stockMode === "PREORDER" ? "প্রি-অর্ডার করুন" : "দেখুন ও অর্ডার করুন"}</Link>
       </div>
     </article>
   );
