@@ -19,11 +19,16 @@ export const SETTING_DEFAULTS = {
   termsContent: "",
   privacyContent: "",
 };
+function replaceLegacyBrand(value) {
+  return typeof value === "string" ? value.replace(/^SUKUN(?:\s+MART)?(?=$|\s)/i, "Trendora Mart") : value;
+}
 
 export const getSettings = cache(async () => {
   const rows = await prisma.siteSetting.findMany();
   const out = { ...SETTING_DEFAULTS };
   for (const r of rows) out[r.key] = r.value;
+  out.siteName = replaceLegacyBrand(out.siteName);
+  out.seoTitle = replaceLegacyBrand(out.seoTitle);
   return out;
 });
 
