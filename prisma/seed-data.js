@@ -15,13 +15,13 @@ const faqs = [
 ];
 
 const settings = {
-  siteName: "SUKUN", tagline: "Electronics Store",
+  siteName: "Trendora Mart", tagline: "Electronics Store",
   footerText: "আপনার পছন্দের ইলেকট্রনিক্স পণ্য, সহজ অর্ডার ও ক্যাশ অন ডেলিভারিতে।",
   contactPhone: "+880 1901 465431",
   address: "Chowdhury House, 623/1019, Poshchimpar Askardighi, Chattogram, Bangladesh 4000",
   facebookUrl: "https://www.facebook.com/Sukunforeasyliving", whatsappUrl: "https://wa.me/8801901465431", messengerUrl: "https://m.me/Sukunforeasyliving",
   deliveryInfo: "ক্যাশ অন ডেলিভারি · সারা বাংলাদেশে ডেলিভারি",
-  seoTitle: "SUKUN — ইলেকট্রনিক্স পণ্য | বাংলাদেশ",
+  seoTitle: "Trendora Mart — ইলেকট্রনিক্স পণ্য | বাংলাদেশ",
   seoDescription: "মোবাইল অ্যাক্সেসরিজ, অডিও, স্মার্ট গ্যাজেটসহ ইলেকট্রনিক্স পণ্য। ক্যাশ অন ডেলিভারি, সারা বাংলাদেশে।",
 };
 
