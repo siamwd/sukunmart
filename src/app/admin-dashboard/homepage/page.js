@@ -38,7 +38,7 @@ export default async function Homepage({ searchParams }) {
     <>
       <PageHeader title="Homepage" /><Notice searchParams={await searchParams} />
       <section className="card mb-8 p-4"><h2 className="mb-1 text-lg font-semibold">Hero images</h2>
-        <p className="mb-4 text-sm text-muted">These appear in the rounded image card beside the hero text and change automatically (interval: hero section config <code>{`{"interval":5}`}</code> seconds). Lower order number shows first. Square images work best (JPEG/PNG/WebP, max 3 MB each, up to 10 images).</p>
+        <p className="mb-4 text-sm text-muted">These appear in the rounded image card beside the hero text and change automatically (interval: hero section config <code>{`{"interval":3}`}</code> seconds). Lower order number shows first. Square images work best (JPEG/PNG/WebP, max 3 MB each, up to 10 images).</p>
         {slides.length === 0 ? <p className="mb-4 text-sm">No hero images yet — a plain green card is shown.</p> : (
           <ul className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{slides.map((b) => (
             <li key={b.id} className="space-y-2 rounded-card border border-line p-3">
