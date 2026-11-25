@@ -12,7 +12,7 @@ export const SETTING_DEFAULTS = {
   whatsappUrl: "",
   messengerUrl: "",
   deliveryInfo: "",
-  seoTitle: "SUKUN",
+  seoTitle: "Trendora Mart",
   seoDescription: "",
   logo: "",
   announcement: "",
